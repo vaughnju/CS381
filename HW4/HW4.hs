@@ -91,17 +91,21 @@ check (Program defs main) =
 --
 
 --break out the variables from an expression
-getVars :: Expr -> String
-getVars (Lit x) = []
-getVars (Ref x) = x
-getVars (Mul x y) = getVars x ++ getVars y
-getVars (Add x y) = getVars x ++ getVars y
+getVars :: String -> [Char]
+getVars [] = []
+getVars (s:xs) = case s of
+                        --if s is a char : getVars xs
+                        --if s is anything else
+
+checkVars :: [Var] -> [Char] -> Bool
+checkVars [] [] = True
+checkVars x s = s `elem` x
 
 checkExpr :: [Var] -> Expr -> Bool
 checkExpr [] e = False
 checkExpr x e =
-              let s = getVars e
-              in s==x
+              let s = getVars (prettyExpr e)
+              in checkVars x s
 
 
 
