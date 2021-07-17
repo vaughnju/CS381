@@ -24,6 +24,7 @@ module HW4 where
 
 import MiniLogo
 import Render
+import Data.Typeable
 
 
 -- Note: in this file, we're placing the AST argument as the *last* argument in
@@ -93,9 +94,8 @@ check (Program defs main) =
 --break out the variables from an expression
 getVars :: String -> [Char]
 getVars [] = []
-getVars (s:xs) = case s of
-                        --if s is a char : getVars xs
-                        --if s is anything else
+getVars (s:xs) = case s of (typeOf s == typeOf "c") -> s : getVars xs
+                           _ -> getVars xs
 
 checkVars :: [Var] -> [Char] -> Bool
 checkVars [] [] = True
