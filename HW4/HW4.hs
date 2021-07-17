@@ -1,7 +1,6 @@
 -- Group members:
 --  * Name, ID
---  * Name, ID
---  * Name, ID
+--  * Justin Vaughn, 931392546
 --
 -- Grading notes: 15pts total
 --  * 2pts checkExpr
@@ -92,17 +91,17 @@ check (Program defs main) =
 --
 
 --break out the variables from an expression
-getVars :: Expr -> [Var]
+getVars :: Expr -> String
 getVars (Lit x) = []
-getVars (Ref x) = [x]
-getVars (Mul x y) = getVars x : getVars y
-getVars (Add x y) = getVars x : getVars y
+getVars (Ref x) = x
+getVars (Mul x y) = getVars x ++ getVars y
+getVars (Add x y) = getVars x ++ getVars y
 
 checkExpr :: [Var] -> Expr -> Bool
 checkExpr [] e = False
 checkExpr x e =
               let s = getVars e
-              in x==s
+              in s==x
 
 
 
