@@ -92,10 +92,14 @@ check (Program defs main) =
 --
 
 --break out the variables from an expression
+isChar :: (Typeable c) => c -> Bool
+isChar c = typeOf c == typeOf 'c'
+
 getVars :: String -> [Char]
 getVars [] = []
-getVars (s:xs) = case s of (typeOf s == typeOf "c") -> s : getVars xs
-                           _ -> getVars xs
+getVars (s:xs) = if (s >= 'a' && s <= 'z') || (s >= 'A' && s <= 'Z')
+                    then s : getVars xs
+                    else getVars xs
 
 checkVars :: [Var] -> [Char] -> Bool
 checkVars [] [] = True
