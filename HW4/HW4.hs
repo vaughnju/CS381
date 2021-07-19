@@ -24,7 +24,7 @@ module HW4 where
 
 import MiniLogo
 import Render
-import Data.Typeable
+import Data.List (sort, nub)
 
 
 -- Note: in this file, we're placing the AST argument as the *last* argument in
@@ -90,23 +90,20 @@ check (Program defs main) =
 --   >>> checkExpr ["x","y"] exprXZ
 --   False
 --
+toString :: Char -> String
+toString c = [c]
 
---break out the variables from an expression
-isChar :: (Typeable c) => c -> Bool
-isChar c = typeOf c == typeOf 'c'
-
-getVars :: String -> [Char]
+getVars :: String -> [String]
 getVars [] = []
 getVars (s:xs) = if (s >= 'a' && s <= 'z') || (s >= 'A' && s <= 'Z')
-                    then s : getVars xs
+                    then (toString s) : getVars xs
                     else getVars xs
 
-checkVars :: [Var] -> [Char] -> Bool
+checkVars :: [Var] -> [String] -> Bool
 checkVars [] [] = True
-checkVars x s = s `elem` x
+checkVars x s = sort x == sort s
 
 checkExpr :: [Var] -> Expr -> Bool
-checkExpr [] e = False
 checkExpr x e =
               let s = getVars (prettyExpr e)
               in checkVars x s
@@ -168,8 +165,16 @@ checkExpr x e =
 --   >>> checkCmd [("f",1)] ["x","y"] (For "z" exprXY exprXY [Pen Up, Call "f" [exprXZ]])
 --   True
 --
+combineExprs :: Expr -> Expr -> [String]
+combineExprs a b = nub (getVars((prettyExpr a) ++ (prettyExpr b)))
+
 checkCmd :: Map Macro Int -> [Var] -> Cmd -> Bool
-checkCmd = undefined
+checkCmd m v c = case c of (Move x q) -> checkVars v (combineExprs x q)
+                           (For _ x q _) -> checkVars v (getVars (prettyExpr x ++ prettyExpr q))
+                           --Call
+                           --_ -> Nothing
+                 -- call checkMacro on m
+                 -- call count calls on m c
 
 
 
