@@ -90,18 +90,16 @@ check (Program defs main) =
 --   >>> checkExpr ["x","y"] exprXZ
 --   False
 --
+toString :: Char -> String
+toString c = [c]
 
-getVars :: String -> [Char]
+getVars :: String -> [String]
 getVars [] = []
 getVars (s:xs) = if (s >= 'a' && s <= 'z') || (s >= 'A' && s <= 'Z')
-                    then s : getVars xs
+                    then (toString s) : getVars xs
                     else getVars xs
 
-toChars :: [Var] -> [Char]
-toChars [] = []
-toChars (x:xs) = x : toChars xs
-
-checkVars :: [Var] -> [Char] -> Bool
+checkVars :: [Var] -> [String] -> Bool
 checkVars [] [] = True
 checkVars x s = sort x == sort s
 
@@ -109,7 +107,6 @@ checkExpr :: [Var] -> Expr -> Bool
 checkExpr [] e = False
 checkExpr x e =
               let s = getVars (prettyExpr e)
-                  --v = toChars x
               in checkVars x s
 
 
