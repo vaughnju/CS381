@@ -104,7 +104,6 @@ checkVars [] [] = True
 checkVars x s = sort x == sort s
 
 checkExpr :: [Var] -> Expr -> Bool
-checkExpr [] e = False
 checkExpr x e =
               let s = getVars (prettyExpr e)
               in checkVars x s
@@ -167,7 +166,12 @@ checkExpr x e =
 --   True
 --
 checkCmd :: Map Macro Int -> [Var] -> Cmd -> Bool
-checkCmd = undefined
+checkCmd m v c = case c of (Move x q) -> checkVars v (getVars (prettyExpr x ++ prettyExpr q))
+                           (For _ x q _) -> checkVars v (getVars (prettyExpr x ++ prettyExpr q))
+                           --Call
+                           --_ -> Nothing
+                 -- call checkMacro on m
+                 -- call count calls on m c
 
 
 
