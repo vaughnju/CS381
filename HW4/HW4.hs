@@ -24,7 +24,7 @@ module HW4 where
 
 import MiniLogo
 import Render
-import Data.List (sort)
+import Data.List (sort, nub)
 
 
 -- Note: in this file, we're placing the AST argument as the *last* argument in
@@ -165,8 +165,11 @@ checkExpr x e =
 --   >>> checkCmd [("f",1)] ["x","y"] (For "z" exprXY exprXY [Pen Up, Call "f" [exprXZ]])
 --   True
 --
+combineExprs :: Expr -> Expr -> [String]
+combineExprs a b = nub (getVars((prettyExpr a) ++ (prettyExpr b)))
+
 checkCmd :: Map Macro Int -> [Var] -> Cmd -> Bool
-checkCmd m v c = case c of (Move x q) -> checkVars v (getVars (prettyExpr x ++ prettyExpr q))
+checkCmd m v c = case c of (Move x q) -> checkVars v (combineExprs x q)
                            (For _ x q _) -> checkVars v (getVars (prettyExpr x ++ prettyExpr q))
                            --Call
                            --_ -> Nothing
