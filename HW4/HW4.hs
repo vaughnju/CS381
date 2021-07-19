@@ -24,7 +24,7 @@ module HW4 where
 
 import MiniLogo
 import Render
-import Data.Typeable
+import Data.List (sort)
 
 
 -- Note: in this file, we're placing the AST argument as the *last* argument in
@@ -91,24 +91,25 @@ check (Program defs main) =
 --   False
 --
 
---break out the variables from an expression
-isChar :: (Typeable c) => c -> Bool
-isChar c = typeOf c == typeOf 'c'
-
 getVars :: String -> [Char]
 getVars [] = []
 getVars (s:xs) = if (s >= 'a' && s <= 'z') || (s >= 'A' && s <= 'Z')
                     then s : getVars xs
                     else getVars xs
 
+toChars :: [Var] -> [Char]
+toChars [] = []
+toChars (x:xs) = x : toChars xs
+
 checkVars :: [Var] -> [Char] -> Bool
 checkVars [] [] = True
-checkVars x s = s `elem` x
+checkVars x s = sort x == sort s
 
 checkExpr :: [Var] -> Expr -> Bool
 checkExpr [] e = False
 checkExpr x e =
               let s = getVars (prettyExpr e)
+                  --v = toChars x
               in checkVars x s
 
 
