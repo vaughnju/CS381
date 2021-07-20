@@ -101,6 +101,7 @@ getVars (s:xs) = if (s >= 'a' && s <= 'z') || (s >= 'A' && s <= 'Z')
 
 checkVars :: [Var] -> [String] -> Bool
 checkVars [] [] = True
+checkVars [] x = True
 checkVars x s = sort x == sort s
 
 checkExpr :: [Var] -> Expr -> Bool
@@ -168,11 +169,21 @@ checkExpr x e =
 combineExprs :: Expr -> Expr -> [String]
 combineExprs a b = nub (getVars((prettyExpr a) ++ (prettyExpr b)))
 
+getListVars :: [String] -> [String]
+getListVars [] = []
+getListVars (x:[]) = [x]
+getListVars (x:xs) = (getVars x) ++ (getListVars xs)
+
+combineExprList :: [Expr] -> [String]
+combineExprList [] = []
+combineExprList (x:[]) = [prettyExpr x]
+combineExprList (x:xs) = nub ((prettyExpr x) : (combineExprList xs))
+
 checkCmd :: Map Macro Int -> [Var] -> Cmd -> Bool
 checkCmd m v c = case c of (Move x q) -> checkVars v (combineExprs x q)
-                           (Call x [q]) -> if x == m then 
-                             --do the thing with the arg array q
-                             else False
+                           (Call x q) -> if m == [] then False else let ma = m!!0 in if x == (fst ma) && (length q) == snd ma then 
+                                                          checkVars v (combineExprList q)
+                                            else False
                            (For _ x q _) -> checkVars v (getVars (prettyExpr x ++ prettyExpr q))
                            --_ -> Nothing
                  -- call checkMacro on m
