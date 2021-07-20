@@ -179,12 +179,17 @@ combineExprList [] = []
 combineExprList (x:[]) = [prettyExpr x]
 combineExprList (x:xs) = nub ((prettyExpr x) : (combineExprList xs))
 
+combineString :: [String] -> String
+combineString [] = ""
+combineString (x:[]) = x
+combineString (x:xs) = x ++ (combineString xs)
+
 checkCmd :: Map Macro Int -> [Var] -> Cmd -> Bool
 checkCmd m v c = case c of (Move x q) -> checkVars v (combineExprs x q)
                            (Call x q) -> if m == [] then False else let ma = m!!0 in if x == (fst ma) && (length q) == snd ma then 
-                                                          checkVars v (combineExprList q)
+                                                          checkVars v (nub (getVars (combineString (combineExprList q))))
                                             else False
-                           (For _ x q _) -> checkVars v (getVars (prettyExpr x ++ prettyExpr q))
+                           (For _ x q _) -> checkVars v (nub(getVars (prettyExpr x ++ prettyExpr q)))
                            --_ -> Nothing
                  -- call checkMacro on m
                  -- call count calls on m c
