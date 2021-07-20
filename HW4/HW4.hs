@@ -170,8 +170,10 @@ combineExprs a b = nub (getVars((prettyExpr a) ++ (prettyExpr b)))
 
 checkCmd :: Map Macro Int -> [Var] -> Cmd -> Bool
 checkCmd m v c = case c of (Move x q) -> checkVars v (combineExprs x q)
+                           (Call x [q]) -> if x == m then 
+                             --do the thing with the arg array q
+                             else False
                            (For _ x q _) -> checkVars v (getVars (prettyExpr x ++ prettyExpr q))
-                           --Call
                            --_ -> Nothing
                  -- call checkMacro on m
                  -- call count calls on m c
@@ -311,8 +313,13 @@ draw p | check p   = toHTML (prog p)
 --   >>> expr env (Add (Mul (Ref "x") (Lit 5)) (Mul (Lit 6) (Ref "y")))
 --   39
 --
+eval :: Expr -> Int
+eval (Lit x)   = x
+eval (Add x y) = eval x + eval y
+eval (Mul x y) = eval x * eval y
+
 expr :: Env -> Expr -> Int
-expr = undefined
+expr x (exp) = eval exp
 
 
 
