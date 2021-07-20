@@ -24,7 +24,7 @@ module HW4 where
 
 import MiniLogo
 import Render
-import Data.List (sort, nub)
+import Data.List (sort, nub, isSubsequenceOf)
 
 
 -- Note: in this file, we're placing the AST argument as the *last* argument in
@@ -102,7 +102,7 @@ getVars (s:xs) = if (s >= 'a' && s <= 'z') || (s >= 'A' && s <= 'Z')
 checkVars :: [Var] -> [String] -> Bool
 checkVars [] [] = True
 checkVars [] x = True
-checkVars x s = sort x == sort s
+checkVars x s = isSubsequenceOf (sort s) (sort x) -- && isSubsequenceOf (sort x) (sort s)
 
 checkExpr :: [Var] -> Expr -> Bool
 checkExpr x e =
@@ -189,8 +189,13 @@ checkCmd m v c = case c of (Move x q) -> checkVars v (combineExprs x q)
                            (Call x q) -> if m == [] then False else let ma = m!!0 in if x == (fst ma) && (length q) == snd ma then 
                                                           checkVars v (nub (getVars (combineString (combineExprList q))))
                                             else False
-                           (For _ x q _) -> checkVars v (nub(getVars (prettyExpr x ++ prettyExpr q)))
-                           --_ -> Nothing
+                           (For a x q d) -> if m == [] then checkCmd [] [a] (d!!(length d - 1))
+                                               else
+                                                 if checkVars v (nub (getVars (combineString (combineExprs x q)))) || (length (combineExprs x q)) == 0 then
+                                                    let vs = v ++ [a]
+                                                    in checkCmd m vs (d!!(length d - 1))
+                                                 else False
+                           _ -> False
                  -- call checkMacro on m
                  -- call count calls on m c
 
