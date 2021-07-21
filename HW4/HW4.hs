@@ -102,7 +102,7 @@ getVars (s:xs) = if (s >= 'a' && s <= 'z') || (s >= 'A' && s <= 'Z')
 
 checkVars :: [Var] -> [String] -> Bool
 checkVars [] [] = True
-checkVars [] x = True
+checkVars [] x = False
 checkVars x s = isSubsequenceOf (sort s) (sort x) -- && isSubsequenceOf (sort x) (sort s)
 
 checkExpr :: [Var] -> Expr -> Bool
@@ -263,14 +263,8 @@ checkBlock m v b = if m == [] && v == [] && b == [] then True
 --   >>> checkDef [("g",3)] (Define "f" ["x","y","z"] [Pen Down, Call "g" [exprXY,exprXZ,exprXY], Pen Up])
 --   True
 --
-checkDefList :: Map Macro Int -> Def -> Bool
-checkDefList = undefined
--- checkDefList m v = []
--- checkDefList v (x:[]) = [checkDef v x]
--- checkDefList v (x:xs) = (checkDef v x) : (checkDefList v xs)
-
 checkDef :: Map Macro Int -> Def -> Bool
-checkDef m v = checkDefList m v
+checkDef m (Define n p b) = checkBlock m p b
 
 
 
@@ -359,12 +353,25 @@ eval (Lit x)   = x
 eval (Add x y) = eval x + eval y
 eval (Mul x y) = eval x * eval y
 
-convEnv :: Env -> Expr
-convEnv = undefined
---convEnv [(v,n),(b,m)] = (Ref v = n)(Ref b = m)
+getExpr :: Env -> Var -> Int
+getExpr m x = let y = (x m) in snd y
 
 expr :: Env -> Expr -> Int
-expr x (exp) = eval exp
+expr m (Lit i)   = i
+expr m (Add l r) = case (expr m l, expr m r) of                      
+                   (i, j) -> (i+j) 
+expr m (Mul l r) = case (expr m l, expr m r) of                      
+                   (i, j) -> (i*j) 
+expr m (Ref x)   = getExpr m x                    
+
+-- get :: Var -> Env -> Maybe Int
+-- get x m = m x
+
+-- sem (Lit i)     m = Just i 
+-- sem (Add l r)   m = case (sem l m, sem r m) of                      
+--                    (Just i, Just j) -> Just (i+j) _ -> Nothing
+-- sem (Let x b s) m = case sem b m of Just i -> sem s (set x i m) _ -> Nothing
+-- sem (Ref x)     m = get x m 
 
 
 
