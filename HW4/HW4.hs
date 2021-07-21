@@ -1,6 +1,7 @@
 -- Group members:
 --  * Name, ID
 --  * Justin Vaughn, 931392546
+--  * Robert Houeland, 933606075
 --
 -- Grading notes: 15pts total
 --  * 2pts checkExpr
@@ -262,8 +263,14 @@ checkBlock m v b = if m == [] && v == [] && b == [] then True
 --   >>> checkDef [("g",3)] (Define "f" ["x","y","z"] [Pen Down, Call "g" [exprXY,exprXZ,exprXY], Pen Up])
 --   True
 --
+checkDefList :: Map Macro Int -> Def -> Bool
+checkDefList = undefined
+-- checkDefList m v = []
+-- checkDefList v (x:[]) = [checkDef v x]
+-- checkDefList v (x:xs) = (checkDef v x) : (checkDefList v xs)
+
 checkDef :: Map Macro Int -> Def -> Bool
-checkDef = undefined
+checkDef m v = checkDefList m v
 
 
 
@@ -352,6 +359,10 @@ eval (Lit x)   = x
 eval (Add x y) = eval x + eval y
 eval (Mul x y) = eval x * eval y
 
+convEnv :: Env -> Expr
+convEnv = undefined
+--convEnv [(v,n),(b,m)] = (Ref v = n)(Ref b = m)
+
 expr :: Env -> Expr -> Int
 expr x (exp) = eval exp
 
@@ -392,13 +403,16 @@ expr x (exp) = eval exp
 --
 cmd :: Macros -> Env -> State -> Cmd -> (State, [Line])
 cmd defs env state@(pen,pos) c = case c of
-
-    Pen Up   -> undefined
-    Pen Down -> undefined
-
-    Move xExp yExp -> undefined
-
-    Call macro args -> undefined
+    Move xExp yExp -> let moveX = expr env xExp 
+                          moveY = expr env yExp
+                      in case pen of
+                        Up   -> ((Up,(moveX,moveY)),[])
+                        Down -> ((Down,(moveX,moveY)),[(pos,(moveX,moveY))])
+    
+    Call macro args -> 
+     case get macro defs of
+          Nothing      -> (state,[])
+          Just (f, v) -> block defs (setAll f (map (expr env) args) []) state v
 
     For v fromExp toExp body ->
 
@@ -411,7 +425,9 @@ cmd defs env state@(pen,pos) c = case c of
           -- and fill in the undefined part that runs the body of the loop.
           loopStep :: (State, [Line]) -> Int -> (State, [Line])
           loopStep (s, ls) i =
-            let (s', ls') = undefined
+            let (s', ls') = case get v env of
+                              Nothing  -> block defs ((v,i):env) s body
+                              Just int -> block defs (set v i env) s body
             in (s', ls ++ ls')
 
       in foldl loopStep (state, []) ixs
