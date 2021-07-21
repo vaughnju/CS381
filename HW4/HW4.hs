@@ -195,9 +195,7 @@ checkCmd m v c = case c of (Move x q) -> checkVars v (combineExprs x q)
                                                     let vs = v ++ [a]
                                                     in checkCmd m vs (d!!(length d - 1))
                                                  else False
-                           _ -> False
-                 -- call checkMacro on m
-                 -- call count calls on m c
+                           (Pen _) -> True
 
 
 
@@ -224,8 +222,23 @@ checkCmd m v c = case c of (Move x q) -> checkVars v (combineExprs x q)
 --   >>> checkBlock [("f",2)] ["x","y","z"] [Pen Up, Call "f" [exprXY,exprXZ], Pen Down]
 --   True
 --
+
+checkCmdList :: Map Macro Int -> [Var] -> [Cmd] -> [Bool]
+checkCmdList m v [] = []
+checkCmdList m v (x:[]) = [checkCmd m v x]
+checkCmdList m v (x:xs) = (checkCmd m v x) : (checkCmdList m v xs)
+
+checkBool :: [Bool] -> Bool
+checkBool xs = 
+  if all (== True) xs then True
+  else False
+
 checkBlock :: Map Macro Int -> [Var] -> Block -> Bool
-checkBlock = undefined
+checkBlock m v b = if m == [] && v == [] && b == [] then True
+                                                    else
+                                                      let q = checkCmdList m v b
+                                                      in checkBool q
+                                                      --do the stuff
 
 
 
