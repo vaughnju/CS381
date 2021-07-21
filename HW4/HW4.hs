@@ -26,6 +26,7 @@ module HW4 where
 import MiniLogo
 import Render
 import Data.List (sort, nub, isSubsequenceOf)
+import Data.Typeable (typeOf)
 
 
 -- Note: in this file, we're placing the AST argument as the *last* argument in
@@ -348,13 +349,17 @@ draw p | check p   = toHTML (prog p)
 --   >>> expr env (Add (Mul (Ref "x") (Lit 5)) (Mul (Lit 6) (Ref "y")))
 --   39
 --
+
 eval :: Expr -> Int
 eval (Lit x)   = x
 eval (Add x y) = eval x + eval y
 eval (Mul x y) = eval x * eval y
 
 getExpr :: Env -> Var -> Int
-getExpr m x = let y = (x m) in snd y
+getExpr x m = let q = (get m x) in
+                                case q of
+                                  Just q -> q
+                                  _ -> 0 
 
 expr :: Env -> Expr -> Int
 expr m (Lit i)   = i
@@ -362,7 +367,7 @@ expr m (Add l r) = case (expr m l, expr m r) of
                    (i, j) -> (i+j) 
 expr m (Mul l r) = case (expr m l, expr m r) of                      
                    (i, j) -> (i*j) 
-expr m (Ref x)   = getExpr m x                    
+expr m (Ref x)   = getExpr m x                   
 
 -- get :: Var -> Env -> Maybe Int
 -- get x m = m x
