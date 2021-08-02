@@ -73,20 +73,24 @@ sister(A, B) :- female(A), sibling(A, B).
 
 % 6. Define a predicate `siblingInLaw/2`. A sibling-in-law is either married to
 %    a sibling or the sibling of a spouse.
-
+siblingInLaw(A, B):- married(A, X), sibling(X, B) ; sibling(A, Y), married(Y, B).
 
 % 7. Define two predicates `aunt/2` and `uncle/2`. Your definitions of these
 %    predicates should include aunts and uncles by marriage.
-
+aunt(A, B):- sister(A, X), parent(X, B) ; parent(X, B), siblingInLaw(A, X), female(A).
+uncle(A, B):- brother(A, X), parent(X, B); parent(X, B), siblingInLaw(A, X), male(A).
 
 % 8. Define the predicate `cousin/2`.
-
+cousin(A, B):- parent(X, A), sibling(X, Y), parent(Y, B); parent(X, A), sibling(X, Y), married(Y, Z), parent(Z, B).
 
 % 9. Define the predicate `ancestor/2`.
-
+ancestor(A, B):- parent(A, B) ; parent(A, X), ancestor(X, B).
 
 % Extra credit: Define the predicate `related/2`.
-
+related(A, B) :- ancestor(A, B); 
+                 sibling(A, X), ancestor(X, B);
+                 married(A, X), ancestor(X, B);
+                 cousin(A, B).
 
 
 %%
