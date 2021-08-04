@@ -102,11 +102,11 @@ related(A, B) :- ancestor(A, B);
 cmd(lte, [X,Y|Z], [t|Z]) :- X < Y.
 cmd(lte, [X,Y|Z], [f|Z]) :- X >= Y.
 cmd(add, [X,Y|Z], [F|Z]) :- F is X + Y.
-cmd(X, Y, [X|Y])         :- X \= add, X \= lte, X \= if(_,_).
+cmd(X, Y, [X|Y])         :- X \= add, X \= lte, X \= if(_, _).
 
 % 2. Define the predicate `prog/3`.
 %
-prog([], S1, S1).
-prog([if(P1,_)|Y], [S1H|S1T], S3) :- S1H = t, prog(P1, S1T, S2), prog(Y, S2, S3).
-prog([if(_,P2)|Y], [S1H|S1T], S3) :- S1H = f, prog(P2, S1T, S2), prog(Y, S2, S3).
-prog([X|Y], S1, S3) :- cmd(X,S1, S2), prog(Y, S2, S3).
+prog([], F1, F1).
+prog([X|Y], F1, F3)                :- cmd(X, F1, F2), prog(Y, F2, F3).
+prog([if(G1, _)|Y], [F1H|F1T], F3) :- F1H = t, prog(G1, F1T, F2), prog(Y, F2, F3).
+prog([if(_, G2)|Y], [F1H|F1T], F3) :- F1H = f, prog(G2, F1T, F2), prog(Y, F2, F3).
