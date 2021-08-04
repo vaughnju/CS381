@@ -106,5 +106,7 @@ cmd(X, Y, [X|Y])         :- X \= add, X \= lte, X \= if(_,_).
 
 % 2. Define the predicate `prog/3`.
 %
-prog([],F1,F1).
+prog([X,Y,Z], [], S) :- cmd(Z, [Y, X], S).
+prog([X,Y|Q], [Z|T], S) :- prog(Q, [cmd(Y, [Z,X], S)|T], S).
+prog([X,Y,Z|Q], [], S) :- prog(Q, [cmd(Z, [Y, X], S)], S).
 
