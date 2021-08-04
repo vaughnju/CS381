@@ -99,8 +99,12 @@ related(A, B) :- ancestor(A, B);
 
 
 % 1. Define the predicate `cmd/3`.
-
+cmd(lte, [X,Y|Z], [t|Z]) :- X < Y.
+cmd(lte, [X,Y|Z], [f|Z]) :- X >= Y.
+cmd(add, [X,Y|Z], [F|Z]) :- F is X + Y.
+cmd(X, Y, [X|Y])         :- X \= add, X \= lte, X \= if(_,_).
 
 % 2. Define the predicate `prog/3`.
 %
+prog([],F1,F1).
 
