@@ -1,5 +1,8 @@
 % Here are a bunch of facts describing the Simpson's family tree.
 % Don't change them!
+%
+% Robert Houeland, 933606075
+% Justin Vaughn, 931392546
 
 female(mona).
 female(jackie).
